@@ -355,7 +355,8 @@
 
         @media (max-width: 768px) {
             .hero {
-                height: 100vh;
+                height: 90vh;
+                min-height: 500px;
             }
         }
 
@@ -364,6 +365,14 @@
             height: 100%;
             object-fit: cover;
             display: block;
+            object-position: center;
+        }
+
+        @media (max-width: 768px) {
+            .hero-image {
+                object-position: center top;
+                object-fit: cover;
+            }
         }
 
         .hero-cta:hover {
