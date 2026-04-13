@@ -370,8 +370,12 @@
 
         @media (max-width: 768px) {
             .hero-image {
-                object-position: center top;
-                object-fit: cover;
+                object-fit: contain;
+                object-position: center;
+                max-width: 90%;
+                width: auto;
+                height: auto;
+                margin: 0 auto;
             }
         }
 
