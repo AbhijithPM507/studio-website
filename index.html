@@ -1,0 +1,1153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lumina Studio — Architecture & Design</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* ===== RESET & BASE ===== */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: #ffffff;
+            color: #1a1a1a;
+            font-family: 'Inter', sans-serif;
+            font-size: 16px;
+            line-height: 1.6;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        @media (prefers-reduced-motion: no-preference) {
+            body {
+                scroll-behavior: smooth;
+            }
+        }
+
+        body > * {
+            position: relative;
+            z-index: 2;
+        }
+
+        /* ===== CUSTOM CURSOR ===== */
+        @media (prefers-reduced-motion: no-preference) {
+            * {
+                cursor: none;
+            }
+
+            a, button, [role="button"] {
+                cursor: none;
+            }
+        }
+
+        #custom-cursor {
+            position: fixed;
+            width: 8px;
+            height: 8px;
+            border: 1.5px solid #1a1a1a;
+            border-radius: 50%;
+            pointer-events: none;
+            z-index: 9999;
+            transform: translate(-50%, -50%);
+            opacity: 1;
+            transition: opacity 0.2s ease;
+        }
+
+        #custom-cursor.active {
+            width: 20px;
+            height: 20px;
+            background-color: rgba(26, 26, 26, 0.1);
+            border-width: 1px;
+        }
+
+        /* ===== TYPOGRAPHY ===== */
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Cormorant Garamond', serif;
+            font-weight: 400;
+            line-height: 1.2;
+            color: #1a1a1a;
+        }
+
+        h1 {
+            font-size: 4.5rem;
+            font-style: italic;
+            letter-spacing: -0.02em;
+            font-weight: 300;
+        }
+
+        h2 {
+            font-size: 3rem;
+            font-style: italic;
+            letter-spacing: -0.01em;
+            font-weight: 300;
+            margin-bottom: 2rem;
+        }
+
+        h3 {
+            font-size: 1.5rem;
+            font-weight: 400;
+        }
+
+        p {
+            color: #4a4a4a;
+            line-height: 1.8;
+        }
+
+        a {
+            color: #1a1a1a;
+            text-decoration: none;
+            transition: opacity 0.3s ease;
+        }
+
+        a:hover {
+            opacity: 0.6;
+        }
+
+        .tag {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.7rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            font-weight: 500;
+            color: #8a8a8a;
+        }
+
+        /* ===== SECTIONS ===== */
+        section {
+            scroll-snap-align: start;
+            width: 100%;
+        }
+
+        @media (max-width: 768px) {
+            section {
+                scroll-snap-align: none;
+            }
+        }
+
+        /* ===== NAVIGATION ===== */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 5rem;
+            background-color: rgba(255, 255, 255, 0);
+            z-index: 100;
+            transition: all 0.5s ease;
+            border-bottom: 1px solid transparent;
+        }
+
+        nav.scrolled {
+            background-color: rgba(255, 255, 255, 0.98);
+            backdrop-filter: blur(8px);
+            border-bottom: 1px solid rgba(26, 26, 26, 0.08);
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                padding: 0 2rem;
+                height: 60px;
+            }
+        }
+
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            animation: fadeIn 0.8s 0.2s ease-out both;
+            color: #1a1a1a;
+            text-transform: uppercase;
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 4rem;
+        }
+
+        @media (max-width: 968px) {
+            nav ul {
+                gap: 2.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            nav ul {
+                gap: 1.5rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        nav a {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.85rem;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            text-decoration: none;
+            color: #1a1a1a;
+            transition: opacity 0.3s ease;
+            position: relative;
+            font-weight: 400;
+            animation: slideDownIn 0.6s ease-out backwards;
+        }
+
+        nav li:nth-child(1) a { animation-delay: 0.25s; }
+        nav li:nth-child(2) a { animation-delay: 0.3s; }
+        nav li:nth-child(3) a { animation-delay: 0.35s; }
+        nav li:nth-child(4) a { animation-delay: 0.4s; }
+        nav li:nth-child(5) a { animation-delay: 0.45s; }
+
+        nav a::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 0;
+            width: 0;
+            height: 1px;
+            background-color: #1a1a1a;
+            transition: width 0.3s ease;
+        }
+
+        nav a:hover::after {
+            width: 100%;
+        }
+
+        /* ===== HERO ===== */
+        .hero {
+            height: 100vh;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            align-items: center;
+            position: relative;
+            overflow: hidden;
+            background: #ffffff;
+        }
+
+        @media (max-width: 968px) {
+            .hero {
+                grid-template-columns: 1fr;
+                height: 80vh;
+            }
+        }
+
+        .hero-content {
+            padding: 0 5rem;
+            z-index: 2;
+        }
+
+        @media (max-width: 768px) {
+            .hero-content {
+                padding: 2rem;
+                text-align: center;
+            }
+        }
+
+        .hero h1 {
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+        }
+
+        .hero-subtitle {
+            font-size: 1.1rem;
+            color: #4a4a4a;
+            margin-bottom: 2.5rem;
+            max-width: 500px;
+            line-height: 1.8;
+            font-weight: 300;
+        }
+
+        .hero-cta {
+            display: inline-block;
+            padding: 0.9rem 2.2rem;
+            border: 1px solid #1a1a1a;
+            color: #1a1a1a;
+            text-decoration: none;
+            font-size: 0.8rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            transition: all 0.4s ease;
+            font-weight: 500;
+        }
+
+        .hero-cta:hover {
+            background: #1a1a1a;
+            color: #ffffff;
+        }
+
+        .hero-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            position: relative;
+        }
+
+        @media (max-width: 968px) {
+            .hero-image {
+                position: absolute;
+                inset: 0;
+                opacity: 0.3;
+                z-index: 1;
+            }
+        }
+
+        /* ===== PORTFOLIO ===== */
+        .portfolio {
+            padding: 8rem 5rem;
+            background: #ffffff;
+        }
+
+        @media (max-width: 768px) {
+            .portfolio {
+                padding: 4rem 2rem;
+            }
+        }
+
+        .portfolio-header {
+            text-align: center;
+            margin-bottom: 6rem;
+            opacity: 0;
+            transform: translateY(30px);
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .portfolio-header .tag {
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .portfolio-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 3rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 1024px) {
+            .portfolio-grid {
+                grid-template-columns: 1fr;
+                gap: 2.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .portfolio-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+
+        .portfolio-item {
+            position: relative;
+            overflow: hidden;
+            aspect-ratio: 4/3;
+            cursor: pointer;
+            opacity: 0;
+            transform: translateY(40px);
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .portfolio-item:nth-child(1) { animation-delay: 0.1s; }
+        .portfolio-item:nth-child(2) { animation-delay: 0.2s; }
+        .portfolio-item:nth-child(3) { animation-delay: 0.3s; }
+        .portfolio-item:nth-child(4) { animation-delay: 0.4s; }
+
+        .portfolio-item.featured {
+            grid-column: 1 / -1;
+            aspect-ratio: 2/1;
+        }
+
+        @media (max-width: 1024px) {
+            .portfolio-item.featured {
+                grid-column: 1;
+                aspect-ratio: 4/3;
+            }
+        }
+
+        .portfolio-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .portfolio-item:hover img {
+            transform: scale(1.05);
+        }
+
+        .portfolio-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.6) 70%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            padding: 2.5rem;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+        }
+
+        .portfolio-item:hover .portfolio-overlay {
+            opacity: 1;
+        }
+
+        .portfolio-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.8rem;
+            font-style: italic;
+            color: #ffffff;
+            margin-bottom: 0.5rem;
+            font-weight: 400;
+        }
+
+        .portfolio-category {
+            font-family: 'Inter', sans-serif;
+            font-size: 0.75rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, 0.7);
+            font-weight: 500;
+        }
+
+        /* ===== ABOUT ===== */
+        .about {
+            padding: 8rem 5rem;
+            background: #fafafa;
+            display: grid;
+            grid-template-columns: 1.1fr 1fr;
+            gap: 6rem;
+            align-items: center;
+        }
+
+        @media (max-width: 1024px) {
+            .about {
+                grid-template-columns: 1fr;
+                gap: 4rem;
+                padding: 6rem 5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .about {
+                padding: 4rem 2rem;
+            }
+        }
+
+        .about-image {
+            width: 100%;
+            aspect-ratio: 4/5;
+            object-fit: cover;
+            opacity: 0;
+            animation: fadeIn 1s ease-out forwards;
+        }
+
+        .about-content {
+            opacity: 0;
+            animation: fadeInLeft 0.8s ease-out 0.2s forwards;
+        }
+
+        .about-content h2 {
+            margin-bottom: 1.5rem;
+        }
+
+        .about-content p {
+            margin-bottom: 1.5rem;
+            color: #4a4a4a;
+            line-height: 1.9;
+        }
+
+        .about-content p:last-child {
+            margin-bottom: 0;
+        }
+
+        /* ===== SERVICES ===== */
+        .services {
+            padding: 8rem 5rem;
+            background: #ffffff;
+        }
+
+        @media (max-width: 768px) {
+            .services {
+                padding: 4rem 2rem;
+            }
+        }
+
+        .services-header {
+            text-align: center;
+            margin-bottom: 6rem;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .services-header .tag {
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .services-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 3rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            .services-grid {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+
+        .service-item {
+            border-left: 2px solid #1a1a1a;
+            padding-left: 2rem;
+            opacity: 0;
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .service-item:nth-child(1) { animation-delay: 0.1s; }
+        .service-item:nth-child(2) { animation-delay: 0.2s; }
+        .service-item:nth-child(3) { animation-delay: 0.3s; }
+        .service-item:nth-child(4) { animation-delay: 0.4s; }
+
+        .service-item h3 {
+            margin-bottom: 1rem;
+            font-size: 1.2rem;
+        }
+
+        .service-item p {
+            font-size: 0.95rem;
+        }
+
+        /* ===== AWARDS ===== */
+        .awards {
+            padding: 8rem 5rem;
+            background: #fafafa;
+        }
+
+        @media (max-width: 768px) {
+            .awards {
+                padding: 4rem 2rem;
+            }
+        }
+
+        .awards-header {
+            text-align: center;
+            margin-bottom: 4rem;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .awards-header .tag {
+            display: block;
+            margin-bottom: 1rem;
+        }
+
+        .awards-list {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 3rem 4rem;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 768px) {
+            .awards-list {
+                grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+        }
+
+        .award-item {
+            opacity: 0;
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+            border-bottom: 1px solid #e0e0e0;
+            padding-bottom: 1.5rem;
+        }
+
+        .award-item:nth-child(1) { animation-delay: 0.1s; }
+        .award-item:nth-child(2) { animation-delay: 0.2s; }
+        .award-item:nth-child(3) { animation-delay: 0.3s; }
+        .award-item:nth-child(4) { animation-delay: 0.4s; }
+
+        .award-name {
+            font-family: 'Inter', sans-serif;
+            font-weight: 500;
+            margin-bottom: 0.3rem;
+            color: #1a1a1a;
+        }
+
+        .award-year {
+            font-size: 0.9rem;
+            color: #8a8a8a;
+        }
+
+        /* ===== CONTACT ===== */
+        .contact {
+            padding: 8rem 5rem;
+            background: #ffffff;
+            text-align: center;
+        }
+
+        @media (max-width: 768px) {
+            .contact {
+                padding: 4rem 2rem;
+            }
+        }
+
+        .contact-header {
+            margin-bottom: 4rem;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .contact-header h2 {
+            margin-bottom: 1.5rem;
+        }
+
+        .contact-info {
+            display: flex;
+            justify-content: center;
+            gap: 3rem;
+            margin-bottom: 4rem;
+            flex-wrap: wrap;
+        }
+
+        .contact-item {
+            text-align: center;
+        }
+
+        .contact-label {
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: #8a8a8a;
+            display: block;
+            margin-bottom: 0.5rem;
+        }
+
+        .contact-link {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.3rem;
+            color: #1a1a1a;
+            text-decoration: none;
+            transition: opacity 0.3s ease;
+        }
+
+        .contact-link:hover {
+            opacity: 0.6;
+        }
+
+        .contact-form {
+            max-width: 600px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+            opacity: 0;
+            animation: fadeInUp 0.8s ease-out 0.2s forwards;
+        }
+
+        .form-group {
+            text-align: left;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: #8a8a8a;
+            margin-bottom: 0.8rem;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 1rem 0.5rem;
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid #1a1a1a;
+            color: #1a1a1a;
+            font-family: 'Inter', sans-serif;
+            font-size: 1rem;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+            border-bottom: 1px solid #1a1a1a;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #c0c0c0;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-bottom-color: #4a4a4a;
+        }
+
+        .submit-btn {
+            padding: 0.9rem 2.2rem;
+            background: #1a1a1a;
+            border: 1px solid #1a1a1a;
+            color: #ffffff;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.8rem;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+            cursor: pointer;
+            transition: all 0.4s ease;
+            font-weight: 500;
+            align-self: flex-start;
+            margin: 1rem auto 0;
+        }
+
+        .submit-btn:hover {
+            background: transparent;
+            color: #1a1a1a;
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        @keyframes slideDownIn {
+            from {
+                opacity: 0;
+                transform: translateY(-15px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInLeft {
+            from {
+                opacity: 0;
+                transform: translateX(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            * {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* ===== LOADING SCREEN ===== */
+        .loading-screen {
+            position: fixed;
+            inset: 0;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            z-index: 9998;
+            opacity: 1;
+            transition: opacity 0.8s ease-out;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loading-spinner {
+            width: 40px;
+            height: 40px;
+            border: 2px solid #1a1a1a;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1.2s linear infinite;
+            margin-bottom: 1.5rem;
+        }
+
+        .loading-text {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.2rem;
+            font-style: italic;
+            color: #1a1a1a;
+            letter-spacing: 0.05em;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .loading-spinner {
+                animation: none;
+                opacity: 0.5;
+            }
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            padding: 3rem 5rem;
+            background: #1a1a1a;
+            color: #ffffff;
+            text-align: center;
+            font-size: 0.85rem;
+            border-top: 1px solid #333333;
+        }
+
+        @media (max-width: 768px) {
+            footer {
+                padding: 2rem 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Loading Screen -->
+    <div class="loading-screen" id="loading-screen">
+        <div class="loading-spinner"></div>
+        <p class="loading-text">Lumina Studio</p>
+    </div>
+
+    <!-- Custom Cursor -->
+    <div id="custom-cursor"></div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">Lumina</div>
+        <ul>
+            <li><a href="#home">Home</a></li>
+            <li><a href="#portfolio">Portfolio</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#services">Services</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero" id="home">
+        <div class="hero-content">
+            <h1>Designing spaces that endure.</h1>
+            <p class="hero-subtitle">We create architecture that transcends trends—thoughtful, minimal, and deeply rooted in context.</p>
+            <a href="#portfolio" class="hero-cta">View Our Work</a>
+        </div>
+        <img src="https://images.unsplash.com/photo-1600596542815-ffad4c1539a9?w=1200&q=80" alt="Modern Architecture" class="hero-image">
+    </section>
+
+    <!-- Portfolio Section -->
+    <section class="portfolio" id="portfolio">
+        <div class="portfolio-header">
+            <span class="tag">Our Work</span>
+            <h2>Selected Projects</h2>
+        </div>
+        <div class="portfolio-grid">
+            <article class="portfolio-item featured">
+                <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&q=80" alt="Minimalist Office Complex">
+                <div class="portfolio-overlay">
+                    <p class="portfolio-category">Commercial</p>
+                    <h3 class="portfolio-title">Minimalist Office Complex</h3>
+                </div>
+            </article>
+            <article class="portfolio-item">
+                <img src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800&q=80" alt="Residential Villa">
+                <div class="portfolio-overlay">
+                    <p class="portfolio-category">Residential</p>
+                    <h3 class="portfolio-title">Coastal Villa</h3>
+                </div>
+            </article>
+            <article class="portfolio-item">
+                <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80" alt="Contemporary Loft">
+                <div class="portfolio-overlay">
+                    <p class="portfolio-category">Residential</p>
+                    <h3 class="portfolio-title">Urban Loft</h3>
+                </div>
+            </article>
+            <article class="portfolio-item">
+                <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80" alt="Public Gallery">
+                <div class="portfolio-overlay">
+                    <p class="portfolio-category">Cultural</p>
+                    <h3 class="portfolio-title">Contemporary Gallery</h3>
+                </div>
+            </article>
+            <article class="portfolio-item">
+                <img src="https://images.unsplash.com/photo-1592078615290-033ee584e267?w=800&q=80" alt="Brutalist Museum">
+                <div class="portfolio-overlay">
+                    <p class="portfolio-category">Institutional</p>
+                    <h3 class="portfolio-title">Museum Extension</h3>
+                </div>
+            </article>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section class="about" id="about">
+        <img src="https://images.unsplash.com/photo-1486312338219-ce68d2dc6f44?w=600&q=80" alt="Studio Space" class="about-image">
+        <div class="about-content">
+            <h2>About Lumina</h2>
+            <p>Founded in 2008, Lumina Studio is an international architecture practice committed to designing spaces that reflect the complexity and beauty of human experience. We believe that great architecture emerges from rigorous research, deep listening, and a disciplined design process.</p>
+            <p>Our work spans residential, commercial, cultural, and institutional projects across Europe and beyond. Through each project, we explore how built environments can foster connection, creativity, and well-being.</p>
+            <p>We work closely with our clients and communities to understand the unique needs and aspirations of each project, creating architecture that is both timeless and deeply responsive to its specific context.</p>
+        </div>
+    </section>
+
+    <!-- Services Section -->
+    <section class="services" id="services">
+        <div class="services-header">
+            <span class="tag">What We Offer</span>
+            <h2>Our Services</h2>
+        </div>
+        <div class="services-grid">
+            <div class="service-item">
+                <h3>Master Planning</h3>
+                <p>Strategic site planning and urban design for large-scale developments, creating cohesive communities and vibrant public spaces.</p>
+            </div>
+            <div class="service-item">
+                <h3>Residential Design</h3>
+                <p>Custom residential projects from private homes to multi-unit complexes, prioritizing livability and timeless design.</p>
+            </div>
+            <div class="service-item">
+                <h3>Commercial Architecture</h3>
+                <p>Innovative office and retail spaces designed to enhance productivity, engagement, and brand identity.</p>
+            </div>
+            <div class="service-item">
+                <h3>Interior Architecture</h3>
+                <p>Thoughtful interior design that integrates seamlessly with architectural narrative, creating immersive spatial experiences.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Awards Section -->
+    <section class="awards" id="awards">
+        <div class="awards-header">
+            <span class="tag">Recognition</span>
+            <h2>Awards & Accolades</h2>
+        </div>
+        <div class="awards-list">
+            <div class="award-item">
+                <p class="award-name">AIA National Honor Award</p>
+                <p class="award-year">2023</p>
+            </div>
+            <div class="award-item">
+                <p class="award-name">RIBA International Prize</p>
+                <p class="award-year">2022</p>
+            </div>
+            <div class="award-item">
+                <p class="award-name">Dezeen Most Liked</p>
+                <p class="award-year">2022</p>
+            </div>
+            <div class="award-item">
+                <p class="award-name">European Architecture Award</p>
+                <p class="award-year">2021</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section class="contact" id="contact">
+        <div class="contact-header">
+            <h2>Get In Touch</h2>
+            <p>Let's discuss your next project or vision.</p>
+        </div>
+        
+        <div class="contact-info">
+            <div class="contact-item">
+                <span class="contact-label">Phone</span>
+                <a href="tel:+1415555123" class="contact-link">+1 (415) 555-0123</a>
+            </div>
+            <div class="contact-item">
+                <span class="contact-label">Email</span>
+                <a href="mailto:hello@luminastudio.com" class="contact-link">hello@luminastudio.com</a>
+            </div>
+        </div>
+
+        <form class="contact-form" id="contact-form">
+            <div class="form-group">
+                <label for="name">Name</label>
+                <input type="text" id="name" name="name" required>
+            </div>
+            <div class="form-group">
+                <label for="email">Email</label>
+                <input type="email" id="email" name="email" required>
+            </div>
+            <div class="form-group">
+                <label for="message">Message</label>
+                <textarea id="message" name="message" required></textarea>
+            </div>
+            <button type="submit" class="submit-btn">Send Message</button>
+        </form>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Lumina Studio. All rights reserved.</p>
+    </footer>
+
+    <script>
+        /* ===== CUSTOM CURSOR ===== */
+        const cursor = document.getElementById('custom-cursor');
+        let mouseX = 0;
+        let mouseY = 0;
+        let cursorX = 0;
+        let cursorY = 0;
+
+        document.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+        });
+
+        function updateCursor() {
+            cursorX += (mouseX - cursorX) * 0.2;
+            cursorY += (mouseY - cursorY) * 0.2;
+            cursor.style.left = cursorX + 'px';
+            cursor.style.top = cursorY + 'px';
+            requestAnimationFrame(updateCursor);
+        }
+
+        if (window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+            updateCursor();
+        }
+
+        // Cursor interactions
+        document.addEventListener('mouseover', (e) => {
+            if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON' || 
+                e.target.classList.contains('portfolio-item') || 
+                e.target.classList.contains('service-item') ||
+                e.target.classList.contains('hero-cta')) {
+                cursor.classList.add('active');
+            }
+        });
+
+        document.addEventListener('mouseout', (e) => {
+            if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON' || 
+                e.target.classList.contains('portfolio-item') || 
+                e.target.classList.contains('service-item') ||
+                e.target.classList.contains('hero-cta')) {
+                cursor.classList.remove('active');
+            }
+        });
+
+        /* ===== NAVIGATION SCROLL EFFECT ===== */
+        const nav = document.querySelector('nav');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        // Smooth scroll for nav links with navbar height offset
+        document.querySelectorAll('nav a').forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const target = document.querySelector(link.getAttribute('href'));
+                if (target) {
+                    const navHeight = document.querySelector('nav').offsetHeight;
+                    const targetPosition = target.offsetTop - navHeight;
+                    window.scrollTo({
+                        top: targetPosition,
+                        behavior: 'smooth'
+                    });
+                }
+            });
+        });
+
+        /* ===== INTERSECTION OBSERVER FOR SCROLL REVEALS ===== */
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                }
+            });
+        }, observerOptions);
+
+        // Observe elements for fade-in animation
+        document.querySelectorAll('.portfolio-item, .service-item, .award-item').forEach(el => {
+            observer.observe(el);
+        });
+
+        /* ===== FORM SUBMISSION ===== */
+        document.getElementById('contact-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const name = this.querySelector('#name').value;
+            const email = this.querySelector('#email').value;
+            const message = this.querySelector('#message').value;
+            
+            if (name && email && message) {
+                alert(`Thank you, ${name}! We've received your message and will be in touch soon.`);
+                this.reset();
+            }
+        });
+
+        /* ===== LOADING SCREEN ===== */
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                const loadingScreen = document.getElementById('loading-screen');
+                loadingScreen.classList.add('hidden');
+            }, 1500);
+        });
+
+        if (document.readyState === 'complete') {
+            setTimeout(() => {
+                const loadingScreen = document.getElementById('loading-screen');
+                loadingScreen.classList.add('hidden');
+            }, 1500);
+        }
+
+        /* ===== PREVENT SCROLLBAR SHIFT ON MOBILE ===== */
+        if (window.innerWidth <= 768) {
+            document.body.style.overflowX = 'hidden';
+        }
+    </script>
+</body>
+</html>
