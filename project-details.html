@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Details — Hornbill Architects</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #ffffff;
+            color: #1a1a1a;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* ===== CUSTOM CURSOR ===== */
+        #custom-cursor {
+            width: 20px;
+            height: 20px;
+            border: 1px solid #1a1a1a;
+            border-radius: 50%;
+            position: fixed;
+            pointer-events: none;
+            z-index: 9999;
+            display: none;
+        }
+
+        #custom-cursor.active {
+            opacity: 0.5;
+            transform: scale(1.5);
+        }
+
+        @media (prefers-reduced-motion: no-preference) and (pointer: fine) {
+            * {
+                cursor: none;
+            }
+        }
+
+        @media (pointer: fine) {
+            #custom-cursor {
+                display: block;
+            }
+        }
+
+        /* ===== NAVIGATION ===== */
+        nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 5rem;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            background: #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        @media (max-width: 1024px) {
+            nav {
+                padding: 1.5rem 3rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            nav {
+                padding: 1rem 1.5rem;
+            }
+        }
+
+        nav.scrolled {
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        }
+
+        .logo {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 1.3rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            color: #1a1a1a;
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 0.35rem;
+            z-index: 103;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .hamburger span {
+            width: 24px;
+            height: 2px;
+            background-color: #1a1a1a;
+            transition: all 0.3s ease;
+            display: block;
+        }
+
+        @media (max-width: 768px) {
+            .hamburger {
+                display: flex;
+            }
+        }
+
+        .hamburger.active span:nth-child(1) {
+            transform: rotate(45deg) translate(8px, 8px);
+        }
+
+        .hamburger.active span:nth-child(2) {
+            opacity: 0;
+        }
+
+        .hamburger.active span:nth-child(3) {
+            transform: rotate(-45deg) translate(7px, -7px);
+        }
+
+        nav ul {
+            display: flex;
+            list-style: none;
+            gap: 4rem;
+            z-index: 101;
+        }
+
+        @media (max-width: 968px) {
+            nav ul {
+                gap: 2.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            nav ul {
+                position: fixed;
+                top: 60px;
+                left: 0;
+                right: 0;
+                flex-direction: column;
+                background: #ffffff;
+                backdrop-filter: blur(8px);
+                padding: 0;
+                gap: 0;
+                max-height: 0;
+                overflow: hidden;
+                border-bottom: 1px solid rgba(26, 26, 26, 0.08);
+                transition: max-height 0.4s ease, padding 0.4s ease;
+                display: none;
+                z-index: 102;
+            }
+
+            nav ul.open {
+                display: flex;
+                max-height: 400px;
+                padding: 2rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            nav ul li {
+                border-bottom: 1px solid rgba(26, 26, 26, 0.05);
+                padding: 1rem 0;
+            }
+        }
+
+        nav a {
+            text-decoration: none;
+            color: #1a1a1a;
+            font-size: 0.9rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            transition: opacity 0.3s ease;
+            font-weight: 500;
+            pointer-events: auto;
+        }
+
+        nav a:hover {
+            opacity: 0.6;
+        }
+
+        /* ===== PROJECT HERO ===== */
+        .project-hero {
+            padding-top: 6rem;
+            padding-bottom: 4rem;
+            background: #fafafa;
+            padding-left: 5rem;
+            padding-right: 5rem;
+            margin-top: 60px;
+        }
+
+        @media (max-width: 1024px) {
+            .project-hero {
+                padding-left: 3rem;
+                padding-right: 3rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .project-hero {
+                padding: 2rem 1.5rem;
+                margin-top: 60px;
+                text-align: center;
+            }
+        }
+
+        .back-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            text-decoration: none;
+            color: #8a8a8a;
+            font-size: 0.85rem;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            margin-bottom: 2rem;
+            transition: color 0.3s ease;
+        }
+
+        .back-link:hover {
+            color: #1a1a1a;
+        }
+
+        .project-title {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 4rem;
+            font-style: italic;
+            font-weight: 300;
+            margin-bottom: 0.5rem;
+            line-height: 1.2;
+        }
+
+        @media (max-width: 968px) {
+            .project-title {
+                font-size: 3rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .project-title {
+                font-size: 2rem;
+            }
+        }
+
+        .project-category {
+            font-size: 0.75rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: #8a8a8a;
+            margin-bottom: 2rem;
+            display: block;
+        }
+
+        .project-description {
+            max-width: 700px;
+            font-size: 1.1rem;
+            color: #4a4a4a;
+            line-height: 1.8;
+            margin-bottom: 1rem;
+        }
+
+        @media (max-width: 768px) {
+            .project-description {
+                font-size: 1rem;
+            }
+        }
+
+        /* ===== PROJECT GALLERY ===== */
+        .project-gallery {
+            padding: 6rem 5rem;
+            background: #ffffff;
+        }
+
+        @media (max-width: 1024px) {
+            .project-gallery {
+                padding: 4rem 3rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .project-gallery {
+                padding: 2rem 1.5rem;
+            }
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        @media (max-width: 1024px) {
+            .gallery-grid {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 1.5rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .gallery-grid {
+                grid-template-columns: 1fr;
+                gap: 1.5rem;
+            }
+        }
+
+        .gallery-item {
+            position: relative;
+            overflow: hidden;
+            aspect-ratio: 1 / 1;
+            opacity: 0;
+            animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+
+        .gallery-item:nth-child(1) { animation-delay: 0.1s; }
+        .gallery-item:nth-child(2) { animation-delay: 0.2s; }
+        .gallery-item:nth-child(3) { animation-delay: 0.3s; }
+        .gallery-item:nth-child(4) { animation-delay: 0.4s; }
+        .gallery-item:nth-child(5) { animation-delay: 0.5s; }
+        .gallery-item:nth-child(6) { animation-delay: 0.6s; }
+
+        .gallery-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transition: transform 0.6s ease;
+        }
+
+        .gallery-item:hover img {
+            transform: scale(1.05);
+        }
+
+        /* ===== FOOTER ===== */
+        footer {
+            padding: 3rem 5rem;
+            background: #1a1a1a;
+            color: #ffffff;
+            text-align: center;
+            font-family: 'Inter', sans-serif;
+            border-top: 1px solid #333333;
+        }
+
+        @media (max-width: 1024px) {
+            footer {
+                padding: 2.5rem 3rem;
+            }
+        }
+
+        @media (max-width: 768px) {
+            footer {
+                padding: 2rem 1.5rem;
+                font-size: 0.8rem;
+            }
+        }
+
+        footer p {
+            margin: 0;
+            opacity: 0.8;
+        }
+
+        /* ===== ANIMATIONS ===== */
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(40px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Custom Cursor -->
+    <div id="custom-cursor"></div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">Hornbill Architects</div>
+        <button class="hamburger" id="hamburger-menu" aria-label="Toggle navigation menu">
+            <span></span>
+            <span></span>
+            <span></span>
+        </button>
+        <ul>
+            <li><a href="index.html#home">Home</a></li>
+            <li><a href="index.html#about">About</a></li>
+            <li><a href="index.html#portfolio">Portfolio</a></li>
+            <li><a href="index.html#services">Services</a></li>
+            <li><a href="index.html#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <!-- Project Hero Section -->
+    <section class="project-hero">
+        <a href="index.html#portfolio" class="back-link">← Back to Portfolio</a>
+        <h1 class="project-title" id="projectTitle">Minimalist Office Complex</h1>
+        <span class="project-category" id="projectCategory">Commercial</span>
+        <p class="project-description" id="projectDescription">
+            A sophisticated commercial development that redefines modern workspace design. This project combines minimalist aesthetics with functional excellence, creating an environment that promotes creativity and collaboration.
+        </p>
+        <p class="project-description" id="projectDescription2">
+            The design emphasizes clean lines, natural light, and sustainable materials. Every detail has been carefully considered to support productivity while maintaining visual harmony with the surrounding landscape.
+        </p>
+    </section>
+
+    <!-- Project Gallery -->
+    <section class="project-gallery">
+        <div class="gallery-grid">
+            <div class="gallery-item">
+                <img src="https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&q=80" alt="Exterior view">
+            </div>
+            <div class="gallery-item">
+                <img src="https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80" alt="Office interior">
+            </div>
+            <div class="gallery-item">
+                <img src="https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800&q=80" alt="Detail shot">
+            </div>
+            <div class="gallery-item">
+                <img src="https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80" alt="Common area">
+            </div>
+            <div class="gallery-item">
+                <img src="https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80" alt="Lobby design">
+            </div>
+            <div class="gallery-item">
+                <img src="https://images.unsplash.com/photo-1592078615290-033ee584e267?w=800&q=80" alt="Night view">
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>&copy; 2025 Hornbill Architects. All rights reserved.</p>
+    </footer>
+
+    <script>
+        /* ===== PROJECT DATA ===== */
+        const projectData = {
+            'minimalist-office': {
+                title: 'Minimalist Office Complex',
+                category: 'Commercial',
+                description1: 'A sophisticated commercial development that redefines modern workspace design. This project combines minimalist aesthetics with functional excellence, creating an environment that promotes creativity and collaboration.',
+                description2: 'The design emphasizes clean lines, natural light, and sustainable materials. Every detail has been carefully considered to support productivity while maintaining visual harmony with the surrounding landscape.',
+                images: [
+                    'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=1200&q=80',
+                    'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80',
+                    'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800&q=80',
+                    'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80',
+                    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80',
+                    'https://images.unsplash.com/photo-1592078615290-033ee584e267?w=800&q=80'
+                ]
+            },
+            'coastal-villa': {
+                title: 'Coastal Villa',
+                category: 'Residential',
+                description1: 'A stunning beachfront residence designed to embrace the surrounding landscape and ocean views. This project seamlessly integrates indoor and outdoor living spaces with an emphasis on light, ventilation, and natural materials.',
+                description2: 'The architecture responds to the site\'s unique geography and climate, featuring multiple levels that follow the natural slope of the terrain. Large apertures frame panoramic views while sophisticated shading systems maintain thermal comfort.',
+                images: [
+                    'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=1200&q=80',
+                    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80',
+                    'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80',
+                    'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80',
+                    'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80',
+                    'https://images.unsplash.com/photo-1592078615290-033ee584e267?w=800&q=80'
+                ]
+            },
+            'urban-loft': {
+                title: 'Urban Loft',
+                category: 'Residential',
+                description1: 'An innovative adaptive reuse project transforming a historic industrial building into contemporary residential lofts. The design respects the building\'s heritage while introducing modern amenities and spatial configurations.',
+                description2: 'Exposed brick, timber, and steel elements are preserved and reinterpreted as design features. Large operable windows maximize natural light and ventilation, while a central courtyard provides outdoor space and circulation.',
+                images: [
+                    'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=1200&q=80',
+                    'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80',
+                    'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800&q=80',
+                    'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80',
+                    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80',
+                    'https://images.unsplash.com/photo-1592078615290-033ee584e267?w=800&q=80'
+                ]
+            },
+            'contemporary-gallery': {
+                title: 'Contemporary Gallery',
+                category: 'Cultural',
+                description1: 'A cutting-edge art gallery designed to showcase contemporary works in an inspiring environment. The architecture itself becomes part of the artistic experience, with carefully calibrated natural light and flexible interior spaces.',
+                description2: 'The building\'s minimalist exterior belies its sophisticated interior with multiple gallery levels, artist studios, and interactive spaces. A grand atrium connects all levels, creating a dramatic sense of arrival and navigation.',
+                images: [
+                    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=1200&q=80',
+                    'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80',
+                    'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80',
+                    'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80',
+                    'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800&q=80',
+                    'https://images.unsplash.com/photo-1592078615290-033ee584e267?w=800&q=80'
+                ]
+            },
+            'museum-extension': {
+                title: 'Museum Extension',
+                category: 'Institutional',
+                description1: 'An ambitious extension to a world-renowned museum, designed to complement the existing heritage building while introducing contemporary exhibition spaces. The new structure respects the original architecture while creating a bold architectural statement.',
+                description2: 'The design features innovative material solutions, including weathering steel and parametric facades that reference the site\'s geological context. Interior spaces are flooded with natural light through strategic skylights and clerestory windows.',
+                images: [
+                    'https://images.unsplash.com/photo-1592078615290-033ee584e267?w=1200&q=80',
+                    'https://images.unsplash.com/photo-1600585154340-be6161a56a0c?w=800&q=80',
+                    'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?w=800&q=80',
+                    'https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=800&q=80',
+                    'https://images.unsplash.com/photo-1497366216548-37526070297c?w=800&q=80',
+                    'https://images.unsplash.com/photo-1600210492486-724fe5c67fb0?w=800&q=80'
+                ]
+            }
+        };
+
+        /* ===== LOAD PROJECT DATA ===== */
+        function loadProjectData() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const projectId = urlParams.get('id') || 'minimalist-office';
+            const project = projectData[projectId];
+
+            if (project) {
+                document.getElementById('projectTitle').textContent = project.title;
+                document.getElementById('projectCategory').textContent = project.category;
+                document.getElementById('projectDescription').textContent = project.description1;
+                document.getElementById('projectDescription2').textContent = project.description2;
+                document.title = `${project.title} — Hornbill Architects`;
+
+                // Update gallery
+                const galleryGrid = document.querySelector('.gallery-grid');
+                galleryGrid.innerHTML = project.images.map((img, index) => {
+                    const isWide = index === 0 ? 'wide' : '';
+                    return `
+                        <div class="gallery-item ${isWide}">
+                            <img src="${img}" alt="Project image ${index + 1}">
+                        </div>
+                    `;
+                }).join('');
+            }
+        }
+
+        /* ===== HAMBURGER MENU ===== */
+        const hamburgerBtn = document.getElementById('hamburger-menu');
+        const navUl = document.querySelector('nav ul');
+        const navLinks = document.querySelectorAll('nav a');
+
+        hamburgerBtn.addEventListener('click', () => {
+            hamburgerBtn.classList.toggle('active');
+            navUl.classList.toggle('open');
+        });
+
+        navLinks.forEach(link => {
+            link.addEventListener('click', () => {
+                hamburgerBtn.classList.remove('active');
+                navUl.classList.remove('open');
+            });
+        });
+
+        /* ===== CUSTOM CURSOR (Only on non-touch devices) ===== */
+        if (window.matchMedia('(pointer: fine)').matches) {
+            const cursor = document.getElementById('custom-cursor');
+            let mouseX = 0;
+            let mouseY = 0;
+            let cursorX = 0;
+            let cursorY = 0;
+
+            document.addEventListener('mousemove', (e) => {
+                mouseX = e.clientX;
+                mouseY = e.clientY;
+            });
+
+            function updateCursor() {
+                cursorX += (mouseX - cursorX) * 0.2;
+                cursorY += (mouseY - cursorY) * 0.2;
+                cursor.style.left = cursorX + 'px';
+                cursor.style.top = cursorY + 'px';
+                requestAnimationFrame(updateCursor);
+            }
+
+            if (window.matchMedia('(prefers-reduced-motion: no-preference)').matches) {
+                updateCursor();
+            }
+
+            document.addEventListener('mouseover', (e) => {
+                if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
+                    cursor.classList.add('active');
+                }
+            });
+
+            document.addEventListener('mouseout', (e) => {
+                if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON') {
+                    cursor.classList.remove('active');
+                }
+            });
+        }
+
+        /* ===== NAVIGATION SCROLL EFFECT ===== */
+        const nav = document.querySelector('nav');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
+        /* ===== INITIALIZE ===== */
+        loadProjectData();
+
+        if (window.innerWidth <= 768) {
+            document.body.style.overflowX = 'hidden';
+        }
+    </script>
+</body>
+</html>
