@@ -65,10 +65,17 @@
             display: none;
         }
 
-        /* Only display custom cursor on devices with fine pointer (mouse) */
+        /* Display custom cursor on desktop/mouse devices only */
         @media (pointer: fine) {
             #custom-cursor {
-                display: block;
+                display: block !important;
+            }
+        }
+
+        /* Hide on touch devices */
+        @media (pointer: coarse) {
+            #custom-cursor {
+                display: none !important;
             }
         }
 
@@ -203,6 +210,32 @@
                 padding: 0 2rem;
                 height: 60px;
             }
+
+            .logo {
+                opacity: 0;
+                visibility: hidden;
+                transform: translateY(-10px);
+                transition: opacity 0.4s ease-in-out, visibility 0.4s ease-in-out, transform 0.4s ease-in-out;
+            }
+
+            nav.header--scrolled .logo {
+                opacity: 1;
+                visibility: visible;
+                transform: translateY(0);
+            }
+
+            .hamburger {
+                opacity: 0;
+                visibility: hidden;
+                transform: translateY(-10px);
+                transition: opacity 0.4s ease-in-out, visibility 0.4s ease-in-out, transform 0.4s ease-in-out;
+            }
+
+            nav.header--scrolled .hamburger {
+                opacity: 1;
+                visibility: visible;
+                transform: translateY(0);
+            }
         }
 
         .logo {
@@ -214,6 +247,16 @@
             color: #1a1a1a;
             text-transform: uppercase;
             z-index: 102;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: opacity 0.4s ease, visibility 0.4s ease, transform 0.4s ease;
+        }
+
+        nav.scrolled .logo {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
         }
 
         /* Hamburger Menu */
@@ -338,24 +381,25 @@
 
         /* ===== HERO ===== */
         .hero {
-            height: 100vh;
+            height: 85vh;
             display: flex;
             align-items: center;
             justify-content: center;
             position: relative;
             overflow: hidden;
             background: #ffffff;
+            margin-top: 120px;
         }
 
         @media (max-width: 968px) {
             .hero {
-                height: 100vh;
+                height: 85vh;
             }
         }
 
         @media (max-width: 768px) {
             .hero {
-                height: 90vh;
+                height: 85vh;
                 min-height: 500px;
             }
         }
@@ -366,14 +410,17 @@
             object-fit: cover;
             display: block;
             object-position: center;
+            transform: scale(1.25);
         }
 
         @media (max-width: 768px) {
             .hero-image {
+                transform: scale(1);
                 object-fit: contain;
                 object-position: center;
                 max-width: 90%;
                 width: auto;
+                max-height: 40vh;
                 height: auto;
                 margin: 0 auto;
             }
@@ -1303,6 +1350,14 @@
                 nav.classList.add('scrolled');
             } else {
                 nav.classList.remove('scrolled');
+            }
+
+            // Mobile header fade-in on scroll
+            const heroHeight = document.querySelector('.hero').offsetHeight;
+            if (window.scrollY > heroHeight * 0.3) {
+                nav.classList.add('header--scrolled');
+            } else {
+                nav.classList.remove('header--scrolled');
             }
         });
 
